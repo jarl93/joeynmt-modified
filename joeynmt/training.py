@@ -300,7 +300,7 @@ class TrainManager:
             self.current_batch_multiplier = self.batch_multiplier
             count = self.current_batch_multiplier - 1
             epoch_loss = 0
-            
+
             start_time = time()
             for i, batch in enumerate(iter(train_iter)):
                 # reactivate training
@@ -395,7 +395,7 @@ class TrainManager:
                     seconds_elapsed = end_time - start_time
                     hours, rest = divmod(seconds_elapsed, 3600)
                     if hours > 3:
-                    	self._save_checkpoint()
+                        self._save_checkpoint()
                         start_time = time()
                     if self.is_best(ckpt_score):
                         self.best_ckpt_score = ckpt_score
