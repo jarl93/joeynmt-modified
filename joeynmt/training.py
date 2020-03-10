@@ -32,7 +32,6 @@ from joeynmt.data import load_data, make_data_iter
 from joeynmt.builders import build_optimizer, build_scheduler, \
     build_gradient_clipper
 from joeynmt.prediction import test
-from time import time
 
 # pylint: disable=too-many-instance-attributes
 class TrainManager:
@@ -301,7 +300,7 @@ class TrainManager:
             count = self.current_batch_multiplier - 1
             epoch_loss = 0
 
-            start_time = time()
+            start_time = time.time()
             for i, batch in enumerate(iter(train_iter)):
                 # reactivate training
                 self.model.train()
@@ -391,12 +390,12 @@ class TrainManager:
                         ckpt_score = valid_score
 
                     new_best = False
-                    end_time = time()
+                    end_time = time.time()
                     seconds_elapsed = end_time - start_time
                     hours, rest = divmod(seconds_elapsed, 3600)
                     if hours > 3:
                         self._save_checkpoint()
-                        start_time = time()
+                        start_time = time.time()
                     if self.is_best(ckpt_score):
                         self.best_ckpt_score = ckpt_score
                         self.best_ckpt_iteration = self.steps
