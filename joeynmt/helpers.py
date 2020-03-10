@@ -28,7 +28,7 @@ class ConfigurationError(Exception):
     """ Custom exception for misspecifications of configuration """
 
 
-def make_model_dir(model_dir: str, overwrite=False) -> str:
+def make_model_dir(model_dir: str, overwrite=True) -> str:
     """
     Create a new directory for the model.
 
