@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # &nbsp; ![Joey-NMT](joey-small.png) Joey NMT
 [![Build Status](https://travis-ci.com/joeynmt/joeynmt.svg?branch=master)](https://travis-ci.org/joeynmt/joeynmt)
 [![Gitter](https://badges.gitter.im/joeynmt/community.svg)](https://gitter.im/joeynmt/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -227,3 +228,6 @@ url = {https://arxiv.org/abs/1907.12484}
 ## Naming
 Joeys are [infant marsupials](https://en.wikipedia.org/wiki/Marsupial#Early_development). 
 
+=======
+This project is a modification of the project joeynmt developed by Joost Bastings (University of Amsterdam) and Julia Kreutzer (Heidelberg University).
+>>>>>>> e2829c19ec350d3fa6ea4548445d5cbef133110c
