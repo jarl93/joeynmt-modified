@@ -45,9 +45,9 @@ model:
         type: "transformer"
         rnn_type: "gru"
         embeddings:
-            embedding_dim: 500
+            embedding_dim: 620
             scale: False
-        hidden_size: 500
+        hidden_size: 620
         bidirectional: True
         dropout: 0.0
         num_layers: 1
@@ -55,10 +55,10 @@ model:
         type: "transformer"
         rnn_type: "gru"
         embeddings:
-            embedding_dim: 500
+            embedding_dim: 620
             scale: False
         emb_scale: False
-        hidden_size: 500
+        hidden_size: 620
         dropout: 0.0
         hidden_dropout: 0.2
         num_layers: 1
