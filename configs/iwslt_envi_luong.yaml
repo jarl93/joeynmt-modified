@@ -3,9 +3,9 @@ name: "iwslt_envi_luong"
 data:
     src: "en"
     trg: "vi"
-    train: "/content/joeynmt-modified/test/data/iwslt_envi/train"
-    dev: "/content/joeynmt-modified/test/data/iwslt_envi/tst2012"
-    test: "/content/joeynmt-modified/test/data/iwslt_envi/tst2013"
+    train: "/content/test/data/iwslt_envi/train"
+    dev: "/content/test/data/iwslt_envi/tst2012"
+    test: "/content/test/data/iwslt_envi/tst2013"
     level: "word"
     lowercase: False
     max_sent_length: 50
@@ -13,8 +13,8 @@ data:
     src_voc_limit: 100000
     trg_voc_min_freq: 0
     trg_voc_limit: 100000
-    src_vocab: "/content/joeynmt-modified/test/data/iwslt_envi/vocab.en"
-    trg_vocab: "/content/joeynmt-modified/test/data/iwslt_envi/vocab.vi"
+    src_vocab: "/content/test/data/iwslt_envi/vocab.en"
+    trg_vocab: "/content/test/data/iwslt_envi/vocab.vi"
 
 testing:
     beam_size: 10
