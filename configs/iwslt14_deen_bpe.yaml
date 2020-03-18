@@ -55,10 +55,10 @@ model:
         type: "transformer"
         rnn_type: "gru"
         embeddings:
-            embedding_dim: 1000
+            embedding_dim: 500
             scale: False
         emb_scale: False
-        hidden_size: 1000
+        hidden_size: 500
         dropout: 0.0
         hidden_dropout: 0.2
         num_layers: 1
