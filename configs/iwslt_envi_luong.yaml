@@ -3,9 +3,9 @@ name: "iwslt_envi_luong"
 data:
     src: "en"
     trg: "vi"
-    train: "test/data/iwslt_envi/train"
-    dev: "test/data/iwslt_envi/tst2012"
-    test: "test/data/iwslt_envi/tst2013"
+    train: "/content/test/data/iwslt_envi/train"
+    dev: "/content/test/data/iwslt_envi/tst2012"
+    test: "/content/test/data/iwslt_envi/tst2013"
     level: "word"
     lowercase: False
     max_sent_length: 50
@@ -37,7 +37,7 @@ training:
     validation_freq: 1000
     logging_freq: 100
     eval_metric: "bleu"
-    model_dir: "models/iwslt_envi_luong"
+    model_dir: "/content/gdrive/My Drive/models/iwslt_envi_luong"
     overwrite: True
     shuffle: True
     use_cuda: True
@@ -54,6 +54,7 @@ model:
     init_rnn_orthogonal: False
     lstm_forget_gate: 0.
     encoder:
+        type: "transformer"
         rnn_type: "lstm"
         embeddings:
             embedding_dim: 512
@@ -63,6 +64,7 @@ model:
         dropout: 0.2
         num_layers: 1
     decoder:
+        type: "transformer"
         rnn_type: "lstm"
         embeddings:
             embedding_dim: 512
