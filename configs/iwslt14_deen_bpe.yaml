@@ -33,7 +33,7 @@ training:
     validation_freq: 2000
     logging_freq: 500
     eval_metric: "bleu"
-    model_dir: "/content/gdrive/My Drive/models/iwslt14_deen_bpe"
+    model_dir: "/content/gdrive/My Drive/models/iwslt14_deen_bpe_rnn"
     overwrite: False
     shuffle: True
     use_cuda: True
@@ -42,23 +42,23 @@ training:
 
 model:
     encoder:
-        type: "transformer"
+        type: "recurrent"
         rnn_type: "gru"
         embeddings:
-            embedding_dim: 512
+            embedding_dim: 620
             scale: False
         hidden_size: 512
         bidirectional: True
         dropout: 0.0
         num_layers: 1
     decoder:
-        type: "transformer"
+        type: "recurrent"
         rnn_type: "gru"
         embeddings:
-            embedding_dim: 512
+            embedding_dim: 620
             scale: False
         emb_scale: False
-        hidden_size: 512
+        hidden_size: 1000
         dropout: 0.0
         hidden_dropout: 0.2
         num_layers: 1
