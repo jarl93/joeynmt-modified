@@ -37,7 +37,7 @@ training:
     logging_freq: 100
     eval_metric: "bleu"
     model_dir: "/content/gdrive/My Drive/models/iwslt15_deen_bpe_transformer"
-    overwrite: False
+    overwrite: True
     shuffle: True
     use_cuda: False
     use_tpu: True
