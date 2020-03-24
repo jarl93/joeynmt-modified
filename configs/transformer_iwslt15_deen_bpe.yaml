@@ -9,10 +9,8 @@ data:
     level: "bpe"
     lowercase: True
     max_sent_length: 62
-    src_voc_min_freq: 0
-    src_voc_limit: 100000
-    trg_voc_min_freq: 0
-    trg_voc_limit: 100000
+    src_vocab: "/content/joeynmt-modified/iwslt15/de-en/vocab.txt"
+    trg_vocab: "/content/joeynmt-modified/iwslt15/de-en/vocab.txt"    
 
 testing:
     beam_size: 5
