@@ -20,6 +20,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 from torchtext.data import Dataset
 
+import torch_xla
+import torch_xla.core.xla_model as xm
+
 from joeynmt.model import build_model
 from joeynmt.batch import Batch
 from joeynmt.helpers import log_data_info, load_config, log_cfg, \
@@ -141,9 +144,17 @@ class TrainManager:
 
         # CPU / GPU
         self.use_cuda = train_config["use_cuda"]
+        self.use_tpu = train_config["use_tpu"]
         if self.use_cuda:
-            self.model.cuda()
-            self.loss.cuda()
+            if not self.use_tpu:
+                self.model.cuda()
+                self.loss.cuda()
+
+        if self.use_tpu:
+            if not self.use_cuda:
+                device = xm.xla_device()            
+                self.model.to(device)
+                self.loss.to(device)
 
         # initialize accumalted batch loss (needed for batch_multiplier)
         self.norm_batch_loss_accumulated = 0
@@ -193,7 +204,11 @@ class TrainManager:
             "scheduler_state": self.scheduler.state_dict() if
             self.scheduler is not None else None,
         }
-        torch.save(state, model_path)
+        if not self.use_tpu:
+            torch.save(state, model_path)
+        else:
+            xm.save(state, model_path)
+
         if self.ckpt_queue.full():
             to_delete = self.ckpt_queue.get()  # delete oldest ckpt
             try:
@@ -210,7 +225,10 @@ class TrainManager:
             symlink_update("{}.ckpt".format(self.steps), best_path)
         except OSError:
             # overwrite best.ckpt
-            torch.save(state, best_path)
+            if not self.use_tpu:
+                torch.save(state, best_path)
+            else:
+                xm.save(state, best_path)
 
     def init_from_checkpoint(self, path: str,
                              reset_best_ckpt: bool = False,
@@ -231,7 +249,7 @@ class TrainManager:
         :param reset_optimizer: reset the optimizer, and do not use the one
                                 stored in the checkpoint.
         """
-        model_checkpoint = load_checkpoint(path=path, use_cuda=self.use_cuda)
+        model_checkpoint = load_checkpoint(path=path, use_cuda=self.use_cuda, use_tpu=self.use_tpu)
 
         # restore model and optimizer parameters
         self.model.load_state_dict(model_checkpoint["model_state"])
@@ -261,8 +279,13 @@ class TrainManager:
 
         # move parameters to cuda
         if self.use_cuda:
-            self.model.cuda()
+            if not self.use_tpu:
+                self.model.cuda()
 
+        if self.use_tpu:
+            if not self.use_cuda:
+                device = xm.xla_device()            
+                self.model.to(device)
     # pylint: disable=unnecessary-comprehension
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
@@ -305,7 +328,7 @@ class TrainManager:
                 # reactivate training
                 self.model.train()
                 # create a Batch object from torchtext batch
-                batch = Batch(batch, self.pad_index, use_cuda=self.use_cuda)
+                batch = Batch(batch, self.pad_index, use_cuda=self.use_cuda, use_tpu=self.use_tpu)
 
                 # only update every batch_multiplier batches
                 # see https://medium.com/@davidlmorton/
@@ -369,6 +392,7 @@ class TrainManager:
                             eval_metric=self.eval_metric,
                             level=self.level, model=self.model,
                             use_cuda=self.use_cuda,
+                            use_tpu=self.use_tpu,
                             max_output_length=self.max_output_length,
                             loss_function=self.loss,
                             beam_size=1,  # greedy validations

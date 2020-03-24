@@ -10,6 +10,8 @@ import numpy as np
 
 import torch
 from torchtext.data import Dataset, Field
+import torch_xla
+import torch_xla.core.xla_model as xm
 
 from joeynmt.helpers import bpe_postprocess, load_config, make_logger,\
     get_latest_checkpoint, load_checkpoint, store_attention_plots
@@ -25,7 +27,7 @@ from joeynmt.vocabulary import Vocabulary
 def validate_on_data(model: Model, data: Dataset,
                      logger: Logger,
                      batch_size: int,
-                     use_cuda: bool, max_output_length: int,
+                     use_cuda: bool, use_tpu: bool, max_output_length: int,
                      level: str, eval_metric: Optional[str],
                      loss_function: torch.nn.Module = None,
                      beam_size: int = 1, beam_alpha: int = -1,
@@ -43,6 +45,7 @@ def validate_on_data(model: Model, data: Dataset,
     :param data: dataset for validation
     :param batch_size: validation batch size
     :param use_cuda: if True, use CUDA
+    :param use_tpu: if True, use TPU
     :param max_output_length: maximum length for generated hypotheses
     :param level: segmentation level, one of "char", "bpe", "word"
     :param eval_metric: evaluation metric, e.g. "bleu"
@@ -88,7 +91,7 @@ def validate_on_data(model: Model, data: Dataset,
         for valid_batch in iter(valid_iter):
             # run as during training to get validation loss (e.g. xent)
 
-            batch = Batch(valid_batch, pad_index, use_cuda=use_cuda)
+            batch = Batch(valid_batch, pad_index, use_cuda=use_cuda, use_tpu = use_tpu)
             # sort batch now by src length and keep track of order
             sort_reverse_index = batch.sort_by_src_lengths()
 
@@ -206,6 +209,7 @@ def test(cfg_file,
     batch_type = cfg["training"].get(
         "eval_batch_type", cfg["training"].get("batch_type", "sentence"))
     use_cuda = cfg["training"].get("use_cuda", False)
+    use_tpu = cfg["training"].get("use_tpu", False)
     level = cfg["data"]["level"]
     eval_metric = cfg["training"]["eval_metric"]
     max_output_length = cfg["training"].get("max_output_length", None)
@@ -217,14 +221,20 @@ def test(cfg_file,
     data_to_predict = {"dev": dev_data, "test": test_data}
 
     # load model state from disk
-    model_checkpoint = load_checkpoint(ckpt, use_cuda=use_cuda)
+    model_checkpoint = load_checkpoint(ckpt, use_cuda=use_cuda, use_tpu=use_tpu)
 
     # build model and load parameters into it
     model = build_model(cfg["model"], src_vocab=src_vocab, trg_vocab=trg_vocab)
     model.load_state_dict(model_checkpoint["model_state"])
 
     if use_cuda:
-        model.cuda()
+        if not use_tpu:
+            model.cuda()
+
+    if use_tpu:
+        if not use_cuda:        
+            device = xm.xla_device()
+            model.to(device)
 
     # whether to use beam search for decoding, 0: greedy decoding
     if "testing" in cfg.keys():
@@ -242,7 +252,7 @@ def test(cfg_file,
             model, data=data_set, batch_size=batch_size,
             batch_type=batch_type, level=level,
             max_output_length=max_output_length, eval_metric=eval_metric,
-            use_cuda=use_cuda, loss_function=None, beam_size=beam_size,
+            use_cuda=use_cuda, use_tpu=use_tpu, loss_function=None, beam_size=beam_size,
             beam_alpha=beam_alpha, logger=logger)
         #pylint: enable=unused-variable
 
@@ -323,7 +333,7 @@ def translate(cfg_file, ckpt: str, output_path: str = None) -> None:
             model, data=test_data, batch_size=batch_size,
             batch_type=batch_type, level=level,
             max_output_length=max_output_length, eval_metric="",
-            use_cuda=use_cuda, loss_function=None, beam_size=beam_size,
+            use_cuda=use_cuda, use_tpu=use_tpu, loss_function=None, beam_size=beam_size,
             beam_alpha=beam_alpha, logger=logger)
         return hypotheses
 
@@ -339,6 +349,7 @@ def translate(cfg_file, ckpt: str, output_path: str = None) -> None:
     batch_type = cfg["training"].get(
         "eval_batch_type", cfg["training"].get("batch_type", "sentence"))
     use_cuda = cfg["training"].get("use_cuda", False)
+    use_tpu = cfg["training"].get("use_tpu", False)    
     level = cfg["data"]["level"]
     max_output_length = cfg["training"].get("max_output_length", None)
 
@@ -364,14 +375,20 @@ def translate(cfg_file, ckpt: str, output_path: str = None) -> None:
     src_field.vocab = src_vocab
 
     # load model state from disk
-    model_checkpoint = load_checkpoint(ckpt, use_cuda=use_cuda)
+    model_checkpoint = load_checkpoint(ckpt, use_cuda=use_cuda, use_tpu=use_tpu)
 
     # build model and load parameters into it
     model = build_model(cfg["model"], src_vocab=src_vocab, trg_vocab=trg_vocab)
     model.load_state_dict(model_checkpoint["model_state"])
 
     if use_cuda:
-        model.cuda()
+        if not use_tpu:
+            model.cuda()
+
+    if use_tpu:
+        if not use_cuda:
+            device = xm.xla_device()
+            model.to(device)
 
     # whether to use beam search for decoding, <2: greedy decoding
     if "testing" in cfg.keys():

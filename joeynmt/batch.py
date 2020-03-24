@@ -10,7 +10,7 @@ class Batch:
     Input is a batch from a torch text iterator.
     """
 
-    def __init__(self, torch_batch, pad_index, use_cuda=False):
+    def __init__(self, torch_batch, pad_index, use_cuda=False, use_tpu=False):
         """
         Create a new joey batch from a torch batch.
         This batch extends torch text's batch attributes with src and trg
@@ -20,6 +20,7 @@ class Batch:
         :param torch_batch:
         :param pad_index:
         :param use_cuda:
+        :param use_tpu:
         """
         self.src, self.src_lengths = torch_batch.src
         self.src_mask = (self.src != pad_index).unsqueeze(1)
@@ -30,6 +31,7 @@ class Batch:
         self.trg_lengths = None
         self.ntokens = None
         self.use_cuda = use_cuda
+        self.use_tpu = use_tpu
 
         if hasattr(torch_batch, "trg"):
             trg, trg_lengths = torch_batch.trg
@@ -43,7 +45,11 @@ class Batch:
             self.ntokens = (self.trg != pad_index).data.sum().item()
 
         if use_cuda:
-            self._make_cuda()
+            if not use_tpu:
+                self._make_cuda()
+        if use_tpu:
+            if not use_cuda:
+                self._make_tpu()
 
     def _make_cuda(self):
         """
@@ -58,6 +64,21 @@ class Batch:
             self.trg_input = self.trg_input.cuda()
             self.trg = self.trg.cuda()
             self.trg_mask = self.trg_mask.cuda()
+
+    def _make_tpu(self):
+        """
+        Move the batch to TPU
+
+        :return:
+        """
+        device = xm.xla_device()
+        self.src = self.src.to(device)
+        self.src_mask = self.src_mask.to(device)
+
+        if self.trg_input is not None:
+            self.trg_input = self.trg_input.to(device)
+            self.trg = self.trg.to(device)
+            self.trg_mask = self.trg_mask.to(device)
 
     def sort_by_src_lengths(self):
         """
@@ -90,6 +111,10 @@ class Batch:
             self.trg = sorted_trg
 
         if self.use_cuda:
-            self._make_cuda()
+            if not self.use_tpu:
+                self._make_cuda()
+        if self.use_tpu:
+            if not self.use_cuda:
+                self._make_tpu()
 
         return rev_index

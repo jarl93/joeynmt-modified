@@ -233,7 +233,7 @@ def get_latest_checkpoint(ckpt_dir: str) -> Optional[str]:
     return latest_checkpoint
 
 
-def load_checkpoint(path: str, use_cuda: bool = True) -> dict:
+def load_checkpoint(path: str, use_cuda: bool = True, use_tpu: bool = False) -> dict:
     """
     Load model from saved checkpoint.
 
