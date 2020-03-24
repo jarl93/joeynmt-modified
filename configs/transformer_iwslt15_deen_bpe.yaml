@@ -3,9 +3,9 @@ name: "iwslt15-deen-bpe-transformer"
 data:
     src: "de"
     trg: "en"
-    train: "content/joeynmt-modified/test/data/iwslt15/de-en/train.bpe.32000"
-    dev: "content/joeynmt-modified/test/data/iwslt15/de-en/valid.bpe.32000"
-    test: "content/joeynmt-modified/test/data/iwslt15/de-en/test.bpe.32000"
+    train: "/content/joeynmt-modified/test/data/iwslt15/de-en/train.bpe.32000"
+    dev: "/content/joeynmt-modified/test/data/iwslt15/de-en/valid.bpe.32000"
+    test: "/content/joeynmt-modified/test/data/iwslt15/de-en/test.bpe.32000"
     level: "bpe"
     lowercase: True
     max_sent_length: 62
@@ -38,7 +38,7 @@ training:
     validation_freq: 1000
     logging_freq: 100
     eval_metric: "bleu"
-    model_dir: "content/gdrive/My Drive/models/iwslt15_deen_bpe_transformer"
+    model_dir: "/content/gdrive/My Drive/models/iwslt15_deen_bpe_transformer"
     overwrite: False
     shuffle: True
     use_cuda: False
