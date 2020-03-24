@@ -71,7 +71,7 @@ class Batch:
 
         :return:
         """
-        device = xm.xla_device()
+        device = torch_xla.core.xla_model.xla_device()
         self.src = self.src.to(device)
         self.src_mask = self.src_mask.to(device)
 
