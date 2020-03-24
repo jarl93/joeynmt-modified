@@ -54,7 +54,6 @@ model:
     init_rnn_orthogonal: False
     lstm_forget_gate: 0.
     encoder:
-        type: "transformer"
         rnn_type: "lstm"
         embeddings:
             embedding_dim: 512
