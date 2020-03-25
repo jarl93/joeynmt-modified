@@ -40,7 +40,8 @@ training:
     model_dir: "/content/gdrive/My Drive/models/iwslt_envi_luong"
     overwrite: True
     shuffle: True
-    use_cuda: True
+    use_cuda: False
+    use_tpu: True
     max_output_length: 150
     print_valid_sents: [0, 1, 2]
 
