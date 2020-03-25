@@ -154,8 +154,8 @@ class TrainManager:
         if self.use_tpu:
             if not self.use_cuda:
                 self.device = xm.xla_device()            
-                self.model.to(device)
-                self.loss.to(device)
+                self.model.to(self.device)
+                self.loss.to(self.device)
 
         # initialize accumalted batch loss (needed for batch_multiplier)
         self.norm_batch_loss_accumulated = 0
