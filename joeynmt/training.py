@@ -147,12 +147,13 @@ class TrainManager:
         self.use_tpu = train_config["use_tpu"]
         if self.use_cuda:
             if not self.use_tpu:
+                self.device = None
                 self.model.cuda()
                 self.loss.cuda()
 
         if self.use_tpu:
             if not self.use_cuda:
-                device = xm.xla_device()            
+                self.device = xm.xla_device()            
                 self.model.to(device)
                 self.loss.to(device)
 
@@ -283,9 +284,8 @@ class TrainManager:
                 self.model.cuda()
 
         if self.use_tpu:
-            if not self.use_cuda:
-                device = xm.xla_device()            
-                self.model.to(device)
+            if not self.use_cuda:          
+                self.model.to(self.device)
     # pylint: disable=unnecessary-comprehension
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-statements
@@ -328,7 +328,7 @@ class TrainManager:
                 # reactivate training
                 self.model.train()
                 # create a Batch object from torchtext batch
-                batch = Batch(batch, self.pad_index, use_cuda=self.use_cuda, use_tpu=self.use_tpu)
+                batch = Batch(batch, self.pad_index, use_cuda=self.use_cuda, use_tpu=self.use_tpu, device=self.device)
 
                 # only update every batch_multiplier batches
                 # see https://medium.com/@davidlmorton/

@@ -10,7 +10,7 @@ class Batch:
     Input is a batch from a torch text iterator.
     """
 
-    def __init__(self, torch_batch, pad_index, use_cuda=False, use_tpu=False):
+    def __init__(self, torch_batch, pad_index, use_cuda=False, use_tpu=False, device=None):
         """
         Create a new joey batch from a torch batch.
         This batch extends torch text's batch attributes with src and trg
@@ -32,6 +32,7 @@ class Batch:
         self.ntokens = None
         self.use_cuda = use_cuda
         self.use_tpu = use_tpu
+        self.device = device
 
         if hasattr(torch_batch, "trg"):
             trg, trg_lengths = torch_batch.trg
@@ -72,6 +73,7 @@ class Batch:
         :return:
         """
         #device = torch_xla.core.xla_model.xla_device()
+        device = self.device
         self.src = self.src.to(device)
         self.src_mask = self.src_mask.to(device)
 
