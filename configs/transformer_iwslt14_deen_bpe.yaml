@@ -39,7 +39,8 @@ training:
     model_dir: "/content/gdrive/My Drive/models/iwslt14_deen_bpe_transformer"
     overwrite: True
     shuffle: True
-    use_cuda: True
+    use_tpu: True
+    use_cuda: False
     max_output_length: 100
     print_valid_sents: [0, 1, 2, 3, 4]
     keep_last_ckpts: 5
